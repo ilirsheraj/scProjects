@@ -66,32 +66,43 @@ dim(all_counts)
 ################################################
 # Reading data from Cellranger Output
 # BiocManager::install("DropletTestFiles")
+
 library(DropletTestFiles)
+# This piece doesnt work, i used the terminal to download the data directly :)
 # cached <- getTestFile("tenx-2.1.0-pbmc4k/1.0.0/filtered.tar.gz")
 # fpath <- "tenx-2.1.0-pbmc4k"
 # untar(cached, exdir=fpath)
-
-# Download filtered data directly from 10x repository
-fpath <- "pbmc4k_filtered_gene_bc_matrices.tar.gz"
-untar(fpath)
+# Run the following lines in terminal
+# wget https://cf.10xgenomics.com/samples/cell-exp/2.1.0/pbmc4k/pbmc4k_filtered_gene_bc_matrices.tar.gz
+# tar -xvf pbmc4k_filtered_gene_bc_matrices.tar.gz
 # BiocManager::install("DropletUtils")
 library(DropletUtils)
+# This will create a SingleCellExperiment class
 sce <- read10xCounts("filtered_gene_bc_matrices/GRCh38")
 sce
+dim(sce)
 
 # We can also read from different experiments: In this case same twice
 dirA <- "filtered_gene_bc_matrices/GRCh38"
 dirB <- "filtered_gene_bc_matrices/GRCh38"
 sce <- read10xCounts(c(dirA, dirB))
 sce
-################################################################################
-# From HDF5-based formats (Hierarchical Data Format version 5 (HDF5))
+dim(sce)
+
+
+##########################################################
+# Part 3: From HDF5-based formats (Hierarchical Data Format version 5 (HDF5))
+##########################################################
 # BiocManager::install("zellkonverter")
 library(zellkonverter)
+
+# zellkonverter gives a SingleCellExperiment class directly
 demo <- system.file("extdata", "krumsiek11.h5ad", package = "zellkonverter")
-sce <- readH5AD(demo)
+# add reader="R" to avoid creating a new python environment
+sce <- readH5AD(demo, reader = "R")
 sce
 
+# Another one is loom
 # BiocManager::install("LoomExperiment")
 library(LoomExperiment)
 demo <- system.file("extdata", "L1_DRG_20_example.loom", package = "LoomExperiment")
