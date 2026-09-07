@@ -118,7 +118,57 @@ summary(multi.outlier)
 # ------------------------------------------------------------------------------
 # Checking diagnostic plots
 # ------------------------------------------------------------------------------
+# To make the names cleaner
+sce_416b$phenotype <- ifelse(grepl("induced", sce_416b$phenotype), "induced", "wild type")
+library(scater)
+
+# Make it visible, the online one is dull
+qc_colors <- scale_colour_manual(values = c(
+  "TRUE"  = "#0072B2",
+  "FALSE" = "#D55E00"),
+  labels = c(
+    "TRUE"  = "Keep",
+    "FALSE" = "Discard")
+  )
+
+gridExtra::grid.arrange(
+  plotColData(
+    sce_416b, x="block", y="sum", colour_by="keep",
+    other_fields="phenotype"
+  ) +
+    facet_wrap(~phenotype) +
+    scale_y_log10() +
+    qc_colors +
+    ggtitle("Total count"),
+  
+  plotColData(
+    sce_416b, x="block", y="detected", colour_by="keep", 
+    other_fields="phenotype"
+  ) +
+    facet_wrap(~phenotype) +
+    scale_y_log10() +
+    qc_colors +
+    ggtitle("Detected features"),
+  
+  plotColData(
+    sce_416b, x="block", y="subset.proportion.Mito", 
+    colour_by="keep", other_fields="phenotype"
+  ) +
+    facet_wrap(~phenotype) +
+    qc_colors +
+    ggtitle("Mito proportion"),
+  
+  plotColData(
+    sce_416b, x="block", y="subset.proportion.ERCC", 
+    colour_by="keep", other_fields="phenotype"
+  ) +
+    facet_wrap(~phenotype) +
+    qc_colors +
+    ggtitle("ERCC proportion"),
+  
+  ncol = 1
+)
 
 
-
+plotColData(sce_416b, x="sum", y="subset.proportion.Mito", colour_by="keep")
 
