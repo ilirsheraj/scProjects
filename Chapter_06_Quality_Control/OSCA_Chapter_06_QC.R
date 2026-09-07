@@ -2,6 +2,7 @@
 # scRNA-seq dataset from Lun et al. (2017), provided with no prior QC.
 library(scRNAseq)
 library(SingleCellExperiment)
+library(scater)
 
 sce_416b <- LunSpikeInData(which="416b")
 sce_416b
@@ -120,7 +121,6 @@ summary(multi.outlier)
 # ------------------------------------------------------------------------------
 # To make the names cleaner
 sce_416b$phenotype <- ifelse(grepl("induced", sce_416b$phenotype), "induced", "wild type")
-library(scater)
 
 # Make it visible, the online one is dull
 qc_colors <- scale_colour_manual(values = c(
@@ -130,6 +130,8 @@ qc_colors <- scale_colour_manual(values = c(
     "TRUE"  = "Keep",
     "FALSE" = "Discard")
   )
+
+pdf("QC_plots_416B.pdf", width = 10, height = 14)
 
 gridExtra::grid.arrange(
   plotColData(
@@ -169,6 +171,57 @@ gridExtra::grid.arrange(
   ncol = 1
 )
 
+dev.off()
 
 plotColData(sce_416b, x="sum", y="subset.proportion.Mito", colour_by="keep")
 
+# Plots from a bigger dataset from mouse brain
+sce_zeisel <- ZeiselBrainData()
+sce_zeisel
+head(rownames(sce_zeisel))
+
+# Deprecated
+sce_zeisel <- aggregateAcrossFeatures(sce_zeisel, 
+                        id=sub("_loc[0-9]+$", "", rownames(sce_zeisel)))
+# Although it issues a warning and suggestion to use scrapper::... it DNE!
+library(org.Mm.eg.db)
+rowData(sce_zeisel)$Ensembl <- mapIds(org.Mm.eg.db, keys=rownames(sce_zeisel), 
+                                      keytype="SYMBOL", column="ENSEMBL")
+
+rowData(sce_zeisel)
+table(rowData(sce_zeisel)$featureType)
+altExpNames(sce_zeisel)
+
+mito_genes <- rowData(sce_zeisel)$featureType == "mito"
+sum(mito_genes)
+
+sce_zeisel <- scrapper::quickRnaQc.se(
+  sce_zeisel,
+  subsets = list(Mito = mito_genes),
+  altexp.proportions = "ERCC")
+
+colData(sce_zeisel)
+table(sce_zeisel$keep)
+
+# Mitochondrial Percent vs Total Counts
+plotColData(sce_zeisel, x="sum", y="subset.proportion.Mito", colour_by="keep") +
+  qc_colors + ggtitle("Mitochondrial Proportion vs Total Counts")
+
+
+# Mitochondrial Percent vs ERC Percent
+plotColData(sce_zeisel, x="subset.proportion.ERCC", y="subset.proportion.Mito", 
+            colour_by="keep") +
+  qc_colors + ggtitle("Mitochondrial Proportion vs ERC Proportion")
+
+# ------------------------------------------------------------------------------
+# Removing Low Quality Cells
+# ------------------------------------------------------------------------------
+# Option 1: Remove low-quality cells
+filtered <- sce_416b[, sce_416b$keep]
+filtered
+
+# Option 2: Flag but keep them for downstream analysis
+# With scrapper, they are already flagged in keep column of colData()
+colData(sce_416b)
+
+# EOF
