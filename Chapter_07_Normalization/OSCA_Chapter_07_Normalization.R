@@ -210,3 +210,5 @@ ggplot(subset(df, expression > 0),
     ca1hippocampus = "CA1 hippocampus",
     sscortex = "SS cortex")) +
   theme_classic(base_size = 13)
+
+# EOF
