@@ -139,5 +139,9 @@ lines(dec_formatted$means[ord],
 #      ylab="Variance of log-expression")
 # curve(fit.pbmc$trend(x), col="dodgerblue", add=TRUE, lwd=2)
 
-
+# ------------------------------------------------------------------------------
+# Another Dataset
+# ------------------------------------------------------------------------------
+library(scRNAseq)
+sce.416b <- LunSpikeInData(which="416b") 
 
