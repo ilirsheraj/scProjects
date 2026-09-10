@@ -64,10 +64,10 @@ sce
 # Quality Control (QC)
 # ------------------------------------------------------------------------------
 # Quality Control: Old Method
-stats <- perCellQCMetrics(sce, subsets=list(Mito=which(location=="MT")))
-high.mito <- isOutlier(stats$subsets_Mito_percent, type="higher")
-sce.pbmc <- sce[,!high.mito]
-sce.pbmc
+# stats <- perCellQCMetrics(sce, subsets=list(Mito=which(location=="MT")))
+# high.mito <- isOutlier(stats$subsets_Mito_percent, type="higher")
+# sce.pbmc <- sce[,!high.mito]
+# sce.pbmc
 
 # More modern way: Quick and shorter, In this case more stringent
 is_mito <- grepl("^MT", location)
