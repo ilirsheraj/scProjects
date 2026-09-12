@@ -128,7 +128,8 @@ ord <- order(dec_formatted$means)
 plot(dec_formatted$means,
      dec_formatted$variances,
      xlab = "Mean of log-expression",
-     ylab = "Variance of log-expression")
+     ylab = "Variance of log-expression",
+     pch = 16)
 
 lines(dec_formatted$means[ord],
       dec_formatted$fitted[ord],
@@ -148,8 +149,9 @@ lines(dec_formatted$means[ord],
 # ------------------------------------------------------------------------------
 set.seed(0010101)
 dec_poisson <- modelGeneVarByPoisson(sce)
-head(dec_poisson)
+# Get a warning, but ignore it
 
+head(dec_poisson)
 
 dec_poisson <- dec_poisson[order(dec_poisson$bio, decreasing=TRUE),]
 head(dec_poisson)
@@ -160,7 +162,48 @@ plot(dec_poisson$mean, dec_poisson$total,
      ylab="Variance of log-expression")
 curve(metadata(dec_poisson)$trend(x), col="dodgerblue", add=TRUE)
 
+# ------------------------------------------------------------------------------
+# Selecting highly variable genes
+# ------------------------------------------------------------------------------
+n_genes <- 0.1*dim(sce)[1]
+hvg <- scrapper::chooseHighlyVariableGenes(
+  dec_formatted$residuals,
+  top = n_genes)
 
+length(hvg)
+str(hvg)
 
+# Keep only Highly Variable Genes
+sce_hvg <- sce[hvg,]
+dim(sce_hvg)
 
+# Keep the entire dataset, but compute dimensionality reduction on HVG
+library(scater)
+sce <- runPCA(sce, subset_row=hvg)
+reducedDimNames(sce)
 
+# Add more options
+rowSubset(sce) <- hvg
+
+# Bigger subset of genes
+n_genes_2 <- 0.2*dim(sce)[1]
+rowSubset(sce, "HVGs.more") <- scrapper::chooseHighlyVariableGenes(
+  dec_formatted$residuals,
+  top = n_genes_2)
+
+# Check their availability
+colnames(rowData(sce))
+
+# Recycling the class above.
+altExp(sce_hvg, "original") <- sce
+altExpNames(sce_hvg)
+dim(sce_hvg)
+
+# No need for explicit subset_row= specification in downstream operations.
+sce_hvg <- runPCA(sce_hvg)
+
+# Recover original data:
+sce_hgv_original <- altExp(sce_hvg, "original", withColData=TRUE)
+sce_hgv_original
+
+# EOF
