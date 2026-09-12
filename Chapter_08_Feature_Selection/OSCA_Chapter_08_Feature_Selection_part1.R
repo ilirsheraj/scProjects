@@ -1,5 +1,6 @@
-library(DropletUtils)
+# Part 2: Basics - Feature Selection Dataset 1
 
+library(DropletUtils)
 # Data downloaded directly from terminal (If you want manually download it, but
 # OSCA's current package does not download it at all)
 # wget wget https://cf.10xgenomics.com/samples/cell-exp/2.1.0/pbmc4k/pbmc4k_raw_gene_bc_matrices.tar.gz
@@ -8,6 +9,7 @@ sce <- read10xCounts("raw_gene_bc_matrices/GRCh38", col.names = TRUE)
 sce
 dim(sce)
 
+# About 750k cells (mostly empty droplets of course)
 totals <- colSums(counts(sce))
 summary(totals)
 table(totals == 0)
@@ -59,6 +61,7 @@ sce <- sce[, keep]
 
 # Now we have a data structure ready for QC
 sce
+# 3302 cells passed the filter
 
 # ------------------------------------------------------------------------------
 # Quality Control (QC)
@@ -91,6 +94,7 @@ qc.thresholds
 # Remove low-quality cells
 sce <- sce[, sce$keep]
 sce
+# 3937 passed QC filters
 
 # ------------------------------------------------------------------------------
 # Normalization
@@ -140,8 +144,23 @@ lines(dec_formatted$means[ord],
 # curve(fit.pbmc$trend(x), col="dodgerblue", add=TRUE, lwd=2)
 
 # ------------------------------------------------------------------------------
-# Another Dataset
+# Quantifying technical noise
 # ------------------------------------------------------------------------------
-library(scRNAseq)
-sce.416b <- LunSpikeInData(which="416b") 
+set.seed(0010101)
+dec_poisson <- modelGeneVarByPoisson(sce)
+head(dec_poisson)
+
+
+dec_poisson <- dec_poisson[order(dec_poisson$bio, decreasing=TRUE),]
+head(dec_poisson)
+
+plot(dec_poisson$mean, dec_poisson$total, 
+     pch=16, 
+     xlab="Mean of log-expression",
+     ylab="Variance of log-expression")
+curve(metadata(dec_poisson)$trend(x), col="dodgerblue", add=TRUE)
+
+
+
+
 
