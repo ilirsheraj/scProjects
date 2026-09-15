@@ -4,6 +4,9 @@ library(scRNAseq)
 library(scater)
 library(org.Mm.eg.db)
 
+# ------------------------------------------------------------------------------
+# Load the Data
+# ------------------------------------------------------------------------------
 sce_zeisel <- ZeiselBrainData()
 sce_zeisel
 head(rownames(sce_zeisel))
@@ -20,6 +23,9 @@ rowData(sce_zeisel)
 table(rowData(sce_zeisel)$featureType)
 altExpNames(sce_zeisel)
 
+# ------------------------------------------------------------------------------
+# QC
+# ------------------------------------------------------------------------------
 # Quality Control: use both mitochondria and Spike-In
 mito_genes <- rowData(sce_zeisel)$featureType == "mito"
 sum(mito_genes)
@@ -53,7 +59,7 @@ sce_zeisel <- scrapper::normalizeRnaCounts.se(
 sce_zeisel
 assayNames(sce_zeisel)
 
-######
+# Suse spike-in to remove technical noise
 ercc <- altExp(sce_zeisel, "ERCC")
 
 # ERCC library sizes
@@ -65,10 +71,9 @@ ercc_sf <- scrapper::centerSizeFactors(ercc_sf)
 # Normalize ERCC counts
 logcounts(ercc) <- scrapper::normalizeCounts(
   counts(ercc),
-  size.factors = ercc_sf
-)
+  size.factors = ercc_sf)
 
-# Put it back
+# Put it back in the sc class
 altExp(sce_zeisel, "ERCC") <- ercc
 
 assayNames(altExp(sce_zeisel, "ERCC"))
@@ -76,7 +81,6 @@ assayNames(altExp(sce_zeisel, "ERCC"))
 # Endogenous genes
 dec_gene <- scrapper::modelGeneVariances(logcounts(sce_zeisel))
 dec_gene <- scrapper::formatModelGeneVariancesResult(dec_gene)
-
 
 # ERCC spike-ins
 dec_ercc <- scrapper::modelGeneVariances(logcounts(altExp(sce_zeisel, "ERCC")))
@@ -101,8 +105,10 @@ head(dec_gene)
 # Rank genes by biological variance
 dec_gene[order(dec_gene$residuals, decreasing = TRUE),]
 
+# Choose top 2000 Genes
 top_zeisel <- rownames(sce_zeisel)[order(dec_gene$bio, decreasing = TRUE)[1:2000]]
 
+# Run the PCA on these genes without removing the rest from the matrix
 set.seed(100)
 sce_zeisel <- runPCA(sce_zeisel, subset_row = top_zeisel, ncomponents = 50)
 
@@ -110,6 +116,7 @@ dim(reducedDim(sce_zeisel, "PCA"))
 
 reducedDimNames(sce_zeisel)
 
+# Plot the PCA
 cell_colors <- c(
   "astrocytes_ependymal" = "#0066CC",
   "endothelial_mural"    = "#FF8C00",
@@ -145,13 +152,11 @@ barplot(
   ylab = "Variance explained (%)",
   main = "PCA Scree Plot")
 
-
+# Plot PCAs for the first 4 components
 plotReducedDim(sce_zeisel, 
                dimred="PCA", 
                ncomponents=4,
                colour_by="level1class") +
   scale_colour_manual(values = cell_colors)
   
-
-
-
+# TCB
