@@ -161,4 +161,34 @@ plotReducedDim(sce_zeisel,
                colour_by="level1class") +
   scale_colour_manual(values = cell_colors)
   
-# TCB
+# t-SNE
+set.seed(00101001101)
+
+sce_zeisel <- runTSNE(sce_zeisel, dimred="PCA")
+
+reducedDimNames(sce_zeisel)
+
+plotReducedDim(
+  sce_zeisel,
+  dimred = "TSNE",
+  colour_by = "level1class",
+  point_size = 1.5) +
+  scale_colour_manual(values = cell_colors)
+
+# Different Preplexity
+set.seed(100)
+sce.zeisel <- runTSNE(sce.zeisel, dimred="PCA", perplexity=5)
+out5 <- plotReducedDim(sce.zeisel, dimred="TSNE",
+                       colour_by="level1class") + ggtitle("perplexity = 5")
+
+set.seed(100)
+sce.zeisel <- runTSNE(sce.zeisel, dimred="PCA", perplexity=20)
+out20 <- plotReducedDim(sce.zeisel, dimred="TSNE",
+                        colour_by="level1class") + ggtitle("perplexity = 20")
+
+set.seed(100)
+sce.zeisel <- runTSNE(sce.zeisel, dimred="PCA", perplexity=80)
+out80 <- plotReducedDim(sce.zeisel, dimred="TSNE", 
+                        colour_by="level1class") + ggtitle("perplexity = 80")
+
+gridExtra::grid.arrange(out5, out20, out80, ncol=3)
