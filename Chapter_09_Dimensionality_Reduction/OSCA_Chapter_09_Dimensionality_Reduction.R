@@ -154,6 +154,19 @@ barplot(
   ylab = "Variance explained (%)",
   main = "PCA Scree Plot")
 
+# Cummulative Sum
+cumulative_sum <- cumsum(percent_var)
+
+plot(seq_along(cumulative_sum),
+     cumulative_sum,
+     type = "b", 
+     pch = 16,
+     xlab = "Principal component",
+     ylab = "Variance explained (%)",
+     main = "Cummulative Sum")
+abline(h = 50, lty=2, col="red")
+
+
 # Plot PCAs for the first 4 components
 plotReducedDim(sce_zeisel, 
                dimred="PCA", 
@@ -222,5 +235,4 @@ plotReducedDim(
   point_size = 1.5) +
   scale_colour_manual(values = cell_colors)
 
-
-
+# EOF
