@@ -1,5 +1,5 @@
 # Part 2: Basics - Dimensionality Reduction
-# This analysis was run before as well
+# The sama dataset was used to run a similar analysis before as well
 library(scRNAseq)
 library(scater)
 library(org.Mm.eg.db)
