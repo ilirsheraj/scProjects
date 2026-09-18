@@ -45,6 +45,8 @@ dim(sce_zeisel)
 # ------------------------------------------------------------------------------
 library(scran)
 set.seed(100)
+
+# Precluster to use deconvolution
 clust_zeisel <- quickCluster(sce_zeisel) 
 table(clust_zeisel)
 
@@ -59,7 +61,7 @@ sce_zeisel <- scrapper::normalizeRnaCounts.se(
 sce_zeisel
 assayNames(sce_zeisel)
 
-# Suse spike-in to remove technical noise
+# Use spike-in to remove technical noise
 ercc <- altExp(sce_zeisel, "ERCC")
 
 # ERCC library sizes
