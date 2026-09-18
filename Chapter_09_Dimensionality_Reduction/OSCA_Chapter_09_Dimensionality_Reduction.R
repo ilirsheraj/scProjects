@@ -175,20 +175,52 @@ plotReducedDim(
   point_size = 1.5) +
   scale_colour_manual(values = cell_colors)
 
-# Different Preplexity
+# Plot different tSNE based on different Preplexity numbers
 set.seed(100)
-sce.zeisel <- runTSNE(sce.zeisel, dimred="PCA", perplexity=5)
-out5 <- plotReducedDim(sce.zeisel, dimred="TSNE",
-                       colour_by="level1class") + ggtitle("perplexity = 5")
+sce_zeisel <- runTSNE(sce_zeisel, dimred="PCA", perplexity=5)
+out5 <- plotReducedDim(
+  sce_zeisel,
+  dimred = "TSNE",
+  colour_by = "level1class",
+  point_size = 1.5) +
+  scale_colour_manual(values = cell_colors) +
+  ggtitle("perplexity = 5")
+  
+set.seed(100)
+sce_zeisel <- runTSNE(sce_zeisel, dimred="PCA", perplexity=20)
+out20 <- plotReducedDim(
+  sce_zeisel,
+  dimred = "TSNE",
+  colour_by = "level1class",
+  point_size = 1.5) +
+  scale_colour_manual(values = cell_colors) +
+  ggtitle("perplexity = 20")
+
 
 set.seed(100)
-sce.zeisel <- runTSNE(sce.zeisel, dimred="PCA", perplexity=20)
-out20 <- plotReducedDim(sce.zeisel, dimred="TSNE",
-                        colour_by="level1class") + ggtitle("perplexity = 20")
-
-set.seed(100)
-sce.zeisel <- runTSNE(sce.zeisel, dimred="PCA", perplexity=80)
-out80 <- plotReducedDim(sce.zeisel, dimred="TSNE", 
-                        colour_by="level1class") + ggtitle("perplexity = 80")
+sce_zeisel <- runTSNE(sce_zeisel, dimred="PCA", perplexity=80)
+out80 <- plotReducedDim(
+  sce_zeisel,
+  dimred = "TSNE",
+  colour_by = "level1class",
+  point_size = 1.5) +
+  scale_colour_manual(values = cell_colors) +
+  ggtitle("perplexity = 80")
 
 gridExtra::grid.arrange(out5, out20, out80, ncol=3)
+
+# UMAP
+set.seed(1100101001)
+sce_zeisel <- runUMAP(sce_zeisel, dimred="PCA")
+
+reducedDimNames(sce_zeisel)
+
+plotReducedDim(
+  sce_zeisel,
+  dimred = "UMAP",
+  colour_by = "level1class",
+  point_size = 1.5) +
+  scale_colour_manual(values = cell_colors)
+
+
+
