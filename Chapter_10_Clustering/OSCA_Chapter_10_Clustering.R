@@ -124,10 +124,37 @@ top_pbmc <- getTopHVGs(dec_pbmc, prop=0.1)
 dec_pbmc[top_pbmc,]
 
 library(scater)
+# First, ill run conventional PCA with 50 PCs
 sce <- runPCA(sce, subset_row=top_pbmc, ncomponents = 50)
-sce <- denoisePCA(sce, subset.row=top_pbmc, technical=dec_pbmc)
 
-ncol(reducedDim(sce_run, "PCA"))
+percentVar <- attr(reducedDim(sce, "PCA"), "percentVar")
+
+plot(percentVar,
+     type = "b",
+     pch = 16,
+     xlab = "Principal component",
+     ylab = "Variance explained (%)")
+
+barplot(percentVar[1:10],
+        names.arg = seq_along(percentVar[1:10]),
+        xlab = "Principal component",
+        ylab = "Variance explained (%)",
+        main = "PCA Scree Plot")
+
+cumulative_sum <- cumsum(percentVar)
+
+plot(seq_along(cumulative_sum),
+     cumulative_sum,
+     type = "b", 
+     pch = 16,
+     xlab = "Principal component",
+     ylab = "Variance explained (%)",
+     main = "Cummulative Sum")
+
+# 5-6 PCs, the rest are useless
+
+# Now lets use variance modeling to support it
+sce <- denoisePCA(sce, subset.row=top_pbmc, technical=dec_pbmc)
 ncol(reducedDim(sce, "PCA"))
 
 set.seed(100000)
