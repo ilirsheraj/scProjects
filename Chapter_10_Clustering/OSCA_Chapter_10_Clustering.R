@@ -124,7 +124,11 @@ top_pbmc <- getTopHVGs(dec_pbmc, prop=0.1)
 dec_pbmc[top_pbmc,]
 
 library(scater)
-sce <- runPCA(sce, subset_row=top_pbmc)
+sce <- runPCA(sce, subset_row=top_pbmc, ncomponents = 50)
+sce <- denoisePCA(sce, subset.row=top_pbmc, technical=dec_pbmc)
+
+ncol(reducedDim(sce_run, "PCA"))
+ncol(reducedDim(sce, "PCA"))
 
 set.seed(100000)
 sce <- runTSNE(sce, dimred="PCA")
@@ -137,3 +141,6 @@ reducedDimNames(sce)
 plotReducedDim(sce, "TSNE")
 
 
+nn_clusters <- clusterCells(sce, use.dimred="PCA")
+colLabels(sce) <- nn_clusters
+plotReducedDim(sce, "TSNE", colour_by="label")
