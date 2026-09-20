@@ -174,7 +174,8 @@ plotReducedDim(sce, "TSNE")
 # Graph-Based Clustering
 # ------------------------------------------------------------------------------
 # clustering is done by scran library
-nn_clusters <- clusterCells(sce, use.dimred="PCA")
+nn_clusters <- clusterRows(reducedDim(sce, "PCA"),
+                           BLUSPARAM = NNGraphParam(cluster.fun = "louvain"))
 table(nn_clusters)
 
 # Assign clusters to the data for visualization
@@ -186,18 +187,29 @@ dev.off()
 
 # Change default parameters
 library(bluster)
-nn_clusters2 <- clusterCells(sce, use.dimred="PCA", 
-                             BLUSPARAM=SNNGraphParam(k=10, type="rank", 
-                                                     cluster.fun="walktrap"))
+nn_clusters2 <- clusterRows(reducedDim(sce, "PCA"),
+                            BLUSPARAM=SNNGraphParam(k=10, type="rank",
+                                                    cluster.fun="walktrap"))
 table(nn_clusters2)
 
 # Get cluster info
-nn_clust_info <- clusterCells(sce, use.dimred="PCA", full=TRUE)
+nn_clust_info <- clusterRows(reducedDim(sce, "PCA"),
+                             BLUSPARAM = NNGraphParam(cluster.fun = "louvain"),
+                             full=TRUE)
+
 nn_clust_info$objects$graph
 
 set.seed(11000)
 reducedDim(sce, "force") <- igraph::layout_with_fr(nn_clust_info$objects$graph)
 plotReducedDim(sce, colour_by="label", dimred="force")
+
+
+# More resolved.
+clust_5 <- clusterRows(reducedDim(sce, "PCA"), BLUSPARAM=NNGraphParam(k=5))
+table(clust_5)
+
+clust_50 <- clusterRows(reducedDim(sce, "PCA"), BLUSPARAM=NNGraphParam(k=50))
+table(clust_50)
 
 
 
