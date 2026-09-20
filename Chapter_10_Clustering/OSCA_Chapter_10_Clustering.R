@@ -183,3 +183,22 @@ colLabels(sce) <- nn_clusters
 pdf("Cluster_Labeled_TSNE.pdf", width = 6, height = 6)
 plotReducedDim(sce, "TSNE", colour_by="label")
 dev.off()
+
+# Change default parameters
+library(bluster)
+nn_clusters2 <- clusterCells(sce, use.dimred="PCA", 
+                             BLUSPARAM=SNNGraphParam(k=10, type="rank", 
+                                                     cluster.fun="walktrap"))
+table(nn_clusters2)
+
+# Get cluster info
+nn_clust_info <- clusterCells(sce, use.dimred="PCA", full=TRUE)
+nn_clust_info$objects$graph
+
+set.seed(11000)
+reducedDim(sce, "force") <- igraph::layout_with_fr(nn_clust_info$objects$graph)
+plotReducedDim(sce, colour_by="label", dimred="force")
+
+
+
+
