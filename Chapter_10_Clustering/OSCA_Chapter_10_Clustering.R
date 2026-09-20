@@ -170,7 +170,16 @@ reducedDimNames(sce)
 
 plotReducedDim(sce, "TSNE")
 
-
+# ------------------------------------------------------------------------------
+# Graph-Based Clustering
+# ------------------------------------------------------------------------------
+# clustering is done by scran library
 nn_clusters <- clusterCells(sce, use.dimred="PCA")
+table(nn_clusters)
+
+# Assign clusters to the data for visualization
 colLabels(sce) <- nn_clusters
+
+pdf("Cluster_Labeled_TSNE.pdf", width = 6, height = 6)
 plotReducedDim(sce, "TSNE", colour_by="label")
+dev.off()
