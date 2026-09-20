@@ -129,11 +129,13 @@ sce <- runPCA(sce, subset_row=top_pbmc, ncomponents = 50)
 
 percentVar <- attr(reducedDim(sce, "PCA"), "percentVar")
 
+pdf("Scree_Plot.pdf", width = 6, height = 5)
 plot(percentVar,
      type = "b",
      pch = 16,
      xlab = "Principal component",
      ylab = "Variance explained (%)")
+dev.off()
 
 barplot(percentVar[1:10],
         names.arg = seq_along(percentVar[1:10]),
@@ -143,6 +145,7 @@ barplot(percentVar[1:10],
 
 cumulative_sum <- cumsum(percentVar)
 
+pdf("PC_Cummulative_Plot.pdf", width = 6, height = 5)
 plot(seq_along(cumulative_sum),
      cumulative_sum,
      type = "b", 
@@ -150,7 +153,7 @@ plot(seq_along(cumulative_sum),
      xlab = "Principal component",
      ylab = "Variance explained (%)",
      main = "Cummulative Sum")
-
+dev.off()
 # 5-6 PCs, the rest are useless
 
 # Now lets use variance modeling to support it
